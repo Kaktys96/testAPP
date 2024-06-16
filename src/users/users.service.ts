@@ -1,17 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { faker } from '@faker-js/faker';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
-        private readonly usersRepository: Repository<User>,
+        private usersRepository: Repository<User>,
     ) {}
 
-    async createManyUsers(count: number): Promise<User[]> {
+    async create(createUserDto: CreateUserDto): Promise<User> {
+        console.log(222)
+        const user = this.usersRepository.create(createUserDto);
+        console.log(333)
+        return await this.usersRepository.save(user);
+    }
+
+    async createMany(count: number): Promise<User[]> {
         const users = [];
 
         for (let i = 0; i < count; i++) {
@@ -26,11 +34,12 @@ export class UsersService {
         return await this.usersRepository.save(users);
     }
 
+
     async updateUsersProblems(): Promise<number> {
-        const { affected } = await this.usersRepository.update(
-            {},
-            { hasProblems: false },
-        );
+        const { affected } = await this.usersRepository.update({ hasProblems: true }, { hasProblems: false });
         return affected;
     }
+
+
+
 }
